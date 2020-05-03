@@ -42,4 +42,4 @@ if __name__ == '__main__':
             update_video('VIDEO ID')  # Put video ID here
         except HttpError as e:
             print('An HTTP error {} occurred: {}'.format(e.resp.status, e.content))
-        sleep(120)  # Waiting to prevent reaching the quota maximum
+        sleep(600)  # Waiting to prevent reaching the quota maximum
