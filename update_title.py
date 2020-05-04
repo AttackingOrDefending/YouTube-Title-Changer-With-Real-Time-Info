@@ -15,7 +15,7 @@ credentials = flow.run_console()
 youtube = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
 
-def update_video(video_id):
+def update_video(video_id, old_title):
     # Executing the request for video statistics
     request = youtube.videos().list(part="statistics", id=video_id)
     response = request.execute()
@@ -26,20 +26,34 @@ def update_video(video_id):
             'comments': response['dislikeCount']}
     title = f'This Video Has {data["views"]} Views, {data["likes"]} Likes, {data["dislikes"]} Dislikes and {data["comments"]} Comments'
 
-    # Executing the request to update the title
-    video_response = youtube.videos().list(id=video_id, part='snippet').execute()
-    video_snippet = video_response['items'][0]['snippet']
-    video_snippet['title'] = title
-    video_update_response = youtube.videos().update(part='snippet', body=dict(snippet=video_snippet, id=video_id)).execute()
+    if old_title != title:
+        # Executing the request to update the title
+        video_response = youtube.videos().list(id=video_id, part='snippet').execute()
+        video_snippet = video_response['items'][0]['snippet']
+        video_snippet['title'] = title
+        video_update_response = youtube.videos().update(part='snippet', body=dict(snippet=video_snippet, id=video_id)).execute()
 
-    # Printing the title
-    print('The Updated Title is: ' + video_update_response['snippet']['title'])
+        # Printing the title
+        print('The Updated Title is: ' + video_update_response['snippet']['title'])
+    else:
+        # Print that the title didn't change
+        print("The title didn't change.")
+    return title
 
 
 if __name__ == '__main__':
+    # Executing the request for video statistics
+    request = youtube.videos().list(part="statistics", id='VIDEO ID')  # Put video ID here
+    response = request.execute()
+    response = response['items'][0]['statistics']
+
+    # Creating new title
+    data = {'views': response['viewCount'], 'likes': response['likeCount'], 'dislikes': response['dislikeCount'],
+            'comments': response['dislikeCount']}
+    old_title = f'This Video Has {data["views"]} Views, {data["likes"]} Likes, {data["dislikes"]} Dislikes and {data["comments"]} Comments'
     while True:
         try:
-            update_video('VIDEO ID')  # Put video ID here
+            old_title = update_video('VIDEO ID', old_title)  # Put video ID here
         except HttpError as e:
             print('An HTTP error {} occurred: {}'.format(e.resp.status, e.content))
         sleep(600)  # Waiting to prevent reaching the quota maximum
