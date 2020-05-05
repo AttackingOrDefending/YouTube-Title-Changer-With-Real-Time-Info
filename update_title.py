@@ -36,21 +36,16 @@ def update_video(video_id, old_title):
         # Printing the title
         print('The Updated Title is: ' + video_update_response['snippet']['title'])
     else:
-        # Print that the title didn't change
+        # Printing that the title didn't change
         print("The title didn't change.")
     return title
 
 
 if __name__ == '__main__':
-    # Executing the request for video statistics
-    request = youtube.videos().list(part="statistics", id='VIDEO ID')  # Put video ID here
-    response = request.execute()
-    response = response['items'][0]['statistics']
-
-    # Creating new title
-    data = {'views': response['viewCount'], 'likes': response['likeCount'], 'dislikes': response['dislikeCount'],
-            'comments': response['dislikeCount']}
-    old_title = f'This Video Has {data["views"]} Views, {data["likes"]} Likes, {data["dislikes"]} Dislikes and {data["comments"]} Comments'
+    # Getting old title
+    video_response = youtube.videos().list(id='VIDEO ID', part='snippet').execute()  # Put video ID here
+    video_snippet = video_response['items'][0]['snippet']
+    old_title = video_snippet['title']
     while True:
         try:
             old_title = update_video('VIDEO ID', old_title)  # Put video ID here
