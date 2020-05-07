@@ -31,6 +31,10 @@ def update_video(video_id, old_title):
         video_response = youtube.videos().list(id=video_id, part='snippet').execute()
         video_snippet = video_response['items'][0]['snippet']
         video_snippet['title'] = title
+        published_at = video_snippet['publishedAt']
+        if len(published_at) == 20:
+            published_at = published_at[:19] + '.000' + published_at[19]
+            video_snippet['publishedAt'] = published_at
         video_update_response = youtube.videos().update(part='snippet', body=dict(snippet=video_snippet, id=video_id)).execute()
 
         # Printing the title
